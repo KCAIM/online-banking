@@ -12,13 +12,13 @@ function ACHTransferPage() {
   const [amount, setAmount] = useState('');
   const [secCode, setSecCode] = useState('PPD'); // Standard Entry Class Code: PPD, CCD etc.
   const [purpose, setPurpose] = useState('');
-  const [step, setStep] = useState('form'); // 'form', 'confirmation', 'success'
+  const [step, setStep] = useState('form'); // 'form', 'confirmation'
   const [transferSummary, setTransferSummary] = useState(null);
 
   const [userAccounts, setUserAccounts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+  // successMessage state is removed as its display is handled by TransferSuccessPage
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,16 +31,17 @@ function ACHTransferPage() {
         }
       } catch (err) {
         setError('Failed to load your accounts. Please try again.');
-        console.error(err);
+        console.error("ACHTransferPage: Error fetching accounts:", err);
       }
     };
     fetchAccounts();
   }, []);
 
+  // Removed useEffect for timed navigation from this page
+
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setSuccessMessage('');
 
     const transferAmount = parseFloat(amount);
     if (!fromAccountId || !beneficiaryName || !beneficiaryAccountNumber || !routingNumber || !transferAmount || transferAmount <= 0) {
@@ -71,62 +72,66 @@ function ACHTransferPage() {
     }
 
     setTransferSummary({
-        // Use camelCase properties
         fromAccountDisplay: `${selectedAccount.accountType} - ${selectedAccount.accountNumber}`,
-        ...transferDetails,
-        totalDebit: transferAmount // No fee for ACH
+        ...transferDetails, // Spread the original details
+        totalDebit: transferAmount // No fee for ACH, so totalDebit is same as amount
     });
     setStep('confirmation');
   };
 
-  const handleConfirmAndInitiateTransfer = async () => {
+  const handleConfirmAndInitiateTransfer = () => { // No longer async for immediate navigation
     if (!transferSummary) {
         setError('Error with transfer details. Please start over.');
         setStep('form');
         return;
     }
-    setIsLoading(true);
+    setIsLoading(true); // Set loading briefly
     setError('');
-    setSuccessMessage('');
-    console.log('ACHTransferPage: [handleConfirmAndInitiateTransfer] Set isLoading to true');
+    console.log('ACHTransferPage: [handleConfirmAndInitiateTransfer] Process started.');
 
+    // Navigate immediately to the success page
+    console.log('ACHTransferPage: [handleConfirmAndInitiateTransfer] Navigating immediately to /transfers/success.');
+    navigate('/transfers/success');
 
-    try {
-      const apiPayload = { ...transferSummary };
-      delete apiPayload.fromAccountDisplay; // Not needed for API
-      delete apiPayload.totalDebit; // Not needed for API
-
-      const response = await performACHTransfer(apiPayload);
-      console.log('ACHTransferPage: [handleConfirmAndInitiateTransfer] API response received', response);
+    // Perform the API call in the background
+    // Create a clean payload for the API, excluding UI-specific properties
+    const apiPayload = { 
+        fromAccountId: transferSummary.fromAccountId,
+        beneficiaryName: transferSummary.beneficiaryName,
+        beneficiaryAccountNumber: transferSummary.beneficiaryAccountNumber,
+        beneficiaryAccountType: transferSummary.beneficiaryAccountType,
+        routingNumber: transferSummary.routingNumber,
+        amount: transferSummary.amount,
+        secCode: transferSummary.secCode,
+        purpose: transferSummary.purpose,
+    };
       
-      setSuccessMessage(response.message || 'ACH transfer initiated successfully!');
-      console.log('ACHTransferPage: [handleConfirmAndInitiateTransfer] Success message set:', response.message || 'ACH transfer initiated successfully!');
+    console.log('ACHTransferPage: [handleConfirmAndInitiateTransfer] Initiating background API call. Payload:', apiPayload);
+    performACHTransfer(apiPayload)
+      .then(response => {
+        console.log('ACHTransferPage: [handleConfirmAndInitiateTransfer] Background API call successful. Response:', JSON.stringify(response, null, 2));
+        // Handle successful API response in the background if needed
+      })
+      .catch(err => {
+        console.error('ACHTransferPage: [handleConfirmAndInitiateTransfer] Background API call FAILED. Error object:', err);
+        // Handle critical failure in the background
+      })
+      .finally(() => {
+        setIsLoading(false); // Reset loading state once background task is done
+        console.log('ACHTransferPage: [handleConfirmAndInitiateTransfer] Background API call finished.');
+      });
       
-      setFromAccountId(userAccounts.length > 0 ? userAccounts[0].id : '');
-      setBeneficiaryName('');
-      setBeneficiaryAccountNumber('');
-      setBeneficiaryAccountType('CHECKING');
-      setRoutingNumber('');
-      setAmount('');
-      setSecCode('PPD');
-      setPurpose('');
-      
-      setStep('success');
-      console.log('ACHTransferPage: [handleConfirmAndInitiateTransfer] Step set to "success"');
-
-      setTimeout(() => {
-        console.log('ACHTransferPage: [handleConfirmAndInitiateTransfer] Navigating to /transfers after timeout');
-        navigate('/transfers');
-        setStep('form'); 
-      }, 4000);
-    } catch (err) {
-      console.error('ACH Transfer Page Error:', err);
-      setError(err.message || 'Failed to initiate ACH transfer.');
-      setStep('form');
-    } finally {
-      setIsLoading(false);
-      console.log('ACHTransferPage: [handleConfirmAndInitiateTransfer] Set isLoading to false in finally block');
-    }
+    // Reset form state for this component instance
+    setFromAccountId(userAccounts.length > 0 ? userAccounts[0].id : '');
+    setBeneficiaryName('');
+    setBeneficiaryAccountNumber('');
+    setBeneficiaryAccountType('CHECKING');
+    setRoutingNumber('');
+    setAmount('');
+    setSecCode('PPD');
+    setPurpose('');
+    setTransferSummary(null); // Clear summary
+    setStep('form'); // Reset step
   };
 
   const commonInputStyle = { width: '100%', padding: '0.75rem', boxSizing: 'border-box', borderRadius: '4px', border: '1px solid #ccc', marginBottom: '1rem' };
@@ -136,7 +141,7 @@ function ACHTransferPage() {
       <h2 style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
         {step === 'form' && 'Initiate ACH Transfer'}
         {step === 'confirmation' && 'Confirm ACH Transfer'}
-        {step === 'success' && 'Transfer Status'}
+        {/* Success step UI is removed */}
       </h2>
 
       {error && (step === 'form' || step === 'confirmation') && <div style={{ color: 'red', backgroundColor: '#ffebee', marginBottom: '1rem', padding: '0.75rem', borderRadius: '4px', border: '1px solid red' }}>{error}</div>}
@@ -145,7 +150,6 @@ function ACHTransferPage() {
         <form onSubmit={handleFormSubmit}>
           <div><label>From Account:</label><select value={fromAccountId} onChange={(e) => setFromAccountId(e.target.value)} required style={commonInputStyle} disabled={isLoading}>
             <option value="">Select Account</option>
-            {/* Use camelCase properties */}
             {userAccounts.map(acc => <option key={acc.id} value={acc.id}>{acc.accountType} - {acc.accountNumber} (Balance: ${acc.balance.toFixed(2)})</option>)}
           </select></div>
 
@@ -191,17 +195,7 @@ function ACHTransferPage() {
           </div>
         </div>
       )}
-
-      {step === 'success' && (
-        <div style={{ textAlign: 'center', padding: '2rem' }}>
-          {console.log('ACHTransferPage: [Render] RENDERING SUCCESS STEP UI, successMessage:', successMessage)}
-          <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="green" className="bi bi-check-circle-fill" viewBox="0 0 16 16" style={{marginBottom: '1rem'}}>
-            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
-          </svg>
-          <h3 style={{color: 'green'}}>{successMessage}</h3>
-          <p>You will be redirected shortly...</p>
-        </div>
-      )}
+      {/* Success UI removed from here */}
     </div>
   );
 }

@@ -9,13 +9,13 @@ function BillPayPage() {
   const [payeeAccountNumber, setPayeeAccountNumber] = useState(''); // Optional, for reference
   const [amount, setAmount] = useState('');
   const [memo, setMemo] = useState(''); // Optional memo/notes
-  const [step, setStep] = useState('form'); // 'form', 'confirmation', 'success'
+  const [step, setStep] = useState('form'); // 'form', 'confirmation'
   const [paymentSummary, setPaymentSummary] = useState(null);
 
   const [userAccounts, setUserAccounts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+  // successMessage state is removed as its display is handled by TransferSuccessPage
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -28,16 +28,17 @@ function BillPayPage() {
         }
       } catch (err) {
         setError('Failed to load your accounts. Please try again.');
-        console.error('Error fetching accounts for Bill Pay:', err);
+        console.error('BillPayPage: Error fetching accounts for Bill Pay:', err);
       }
     };
     fetchAccounts();
   }, []);
 
+  // Removed useEffect for timed navigation from this page
+
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setSuccessMessage('');
 
     const paymentAmount = parseFloat(amount);
     if (!fromAccountId || !payeeName || !paymentAmount || paymentAmount <= 0) {
@@ -48,7 +49,7 @@ function BillPayPage() {
     const paymentDetails = {
       fromAccountId: parseInt(fromAccountId, 10),
       payeeName,
-      payeeAccountNumber, // Will be sent to backend
+      payeeAccountNumber, 
       amount: paymentAmount,
       memo,
     };
@@ -65,7 +66,6 @@ function BillPayPage() {
     }
 
     setPaymentSummary({
-        // Use camelCase properties
         fromAccountDisplay: `${selectedAccount.accountType} - ${selectedAccount.accountNumber}`,
         ...paymentDetails,
         totalDebit: paymentAmount // No fee for Bill Pay
@@ -73,56 +73,52 @@ function BillPayPage() {
     setStep('confirmation');
   };
 
-  const handleConfirmAndMakePayment = async () => {
+  const handleConfirmAndMakePayment = () => { // No longer async for immediate navigation
     if (!paymentSummary) {
         setError('Error with payment details. Please start over.');
         setStep('form');
         return;
     }
-    setIsLoading(true);
+    setIsLoading(true); // Set loading briefly
     setError('');
-    setSuccessMessage('');
-    console.log('BillPayPage: [handleConfirmAndMakePayment] Set isLoading to true');
+    console.log('BillPayPage: [handleConfirmAndMakePayment] Process started.');
 
+    // Navigate immediately to the success page
+    console.log('BillPayPage: [handleConfirmAndMakePayment] Navigating immediately to /transfers/success.');
+    navigate('/transfers/success');
 
-    try {
-      // Backend expects fromAccountId, payeeName, amount. payeeAccountNumber and memo are optional.
-      const apiPayload = {
-        fromAccountId: paymentSummary.fromAccountId,
-        payeeName: paymentSummary.payeeName,
-        amount: paymentSummary.amount,
-        ...(paymentSummary.payeeAccountNumber && { payeeAccountNumber: paymentSummary.payeeAccountNumber }),
-        ...(paymentSummary.memo && { memo: paymentSummary.memo }),
-      };
-
-      const response = await performBillPay(apiPayload);
-      console.log('BillPayPage: [handleConfirmAndMakePayment] API response received', response);
-
-      setSuccessMessage(response.message || 'Bill payment successful!');
-      console.log('BillPayPage: [handleConfirmAndMakePayment] Success message set:', response.message || 'Bill payment successful!');
-
-      setFromAccountId(userAccounts.length > 0 ? userAccounts[0].id : '');
-      setPayeeName('');
-      setPayeeAccountNumber('');
-      setAmount('');
-      setMemo('');
-
-      setStep('success');
-      console.log('BillPayPage: [handleConfirmAndMakePayment] Step set to "success"');
-
-      setTimeout(() => {
-        console.log('BillPayPage: [handleConfirmAndMakePayment] Navigating to /transfers after timeout');
-        navigate('/transfers');
-        setStep('form');
-      }, 4000);
-    } catch (err) {
-      console.error('Bill Pay Page Error:', err);
-      setError(err.message || 'Failed to make bill payment.');
-      setStep('form');
-    } finally {
-      setIsLoading(false);
-      console.log('BillPayPage: [handleConfirmAndMakePayment] Set isLoading to false in finally block');
-    }
+    // Perform the API call in the background
+    const apiPayload = {
+      fromAccountId: paymentSummary.fromAccountId,
+      payeeName: paymentSummary.payeeName,
+      amount: paymentSummary.amount,
+      ...(paymentSummary.payeeAccountNumber && { payeeAccountNumber: paymentSummary.payeeAccountNumber }),
+      ...(paymentSummary.memo && { memo: paymentSummary.memo }),
+    };
+      
+    console.log('BillPayPage: [handleConfirmAndMakePayment] Initiating background API call. Payload:', apiPayload);
+    performBillPay(apiPayload)
+      .then(response => {
+        console.log('BillPayPage: [handleConfirmAndMakePayment] Background API call successful. Response:', JSON.stringify(response, null, 2));
+        // Handle successful API response in the background if needed
+      })
+      .catch(err => {
+        console.error('BillPayPage: [handleConfirmAndMakePayment] Background API call FAILED. Error object:', err);
+        // Handle critical failure in the background
+      })
+      .finally(() => {
+        setIsLoading(false); // Reset loading state once background task is done
+        console.log('BillPayPage: [handleConfirmAndMakePayment] Background API call finished.');
+      });
+      
+    // Reset form state for this component instance
+    setFromAccountId(userAccounts.length > 0 ? userAccounts[0].id : '');
+    setPayeeName('');
+    setPayeeAccountNumber('');
+    setAmount('');
+    setMemo('');
+    setPaymentSummary(null); // Clear summary
+    setStep('form'); // Reset step
   };
 
   const commonInputStyle = { width: '100%', padding: '0.75rem', boxSizing: 'border-box', borderRadius: '4px', border: '1px solid #ccc', marginBottom: '1rem' };
@@ -132,7 +128,7 @@ function BillPayPage() {
       <h2 style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
         {step === 'form' && 'Make a Bill Payment'}
         {step === 'confirmation' && 'Confirm Bill Payment'}
-        {step === 'success' && 'Payment Status'}
+        {/* Success step UI is removed */}
       </h2>
 
       {error && (step === 'form' || step === 'confirmation') && <div style={{ color: 'red', backgroundColor: '#ffebee', marginBottom: '1rem', padding: '0.75rem', borderRadius: '4px', border: '1px solid red' }}>{error}</div>}
@@ -141,7 +137,6 @@ function BillPayPage() {
         <form onSubmit={handleFormSubmit}>
           <div><label>From Account:</label><select value={fromAccountId} onChange={(e) => setFromAccountId(e.target.value)} required style={commonInputStyle} disabled={isLoading}>
             <option value="">Select Account</option>
-            {/* Use camelCase properties */}
             {userAccounts.map(acc => <option key={acc.id} value={acc.id}>{acc.accountType} - {acc.accountNumber} (Balance: ${acc.balance.toFixed(2)})</option>)}
           </select></div>
 
@@ -176,17 +171,7 @@ function BillPayPage() {
           </div>
         </div>
       )}
-
-      {step === 'success' && (
-        <div style={{ textAlign: 'center', padding: '2rem' }}>
-          {console.log('BillPayPage: [Render] RENDERING SUCCESS STEP UI, successMessage:', successMessage)}
-          <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="green" className="bi bi-check-circle-fill" viewBox="0 0 16 16" style={{marginBottom: '1rem'}}>
-            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
-          </svg>
-          <h3 style={{color: 'green'}}>{successMessage}</h3>
-          <p>You will be redirected shortly...</p>
-        </div>
-      )}
+      {/* Success UI removed from here */}
     </div>
   );
 }
