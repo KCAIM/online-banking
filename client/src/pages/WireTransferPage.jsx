@@ -124,27 +124,44 @@ function WireTransferPage() {
         amount: transferSummary.transferAmount,
       };
       
-      console.log('WireTransferPage: Initiating API call with payload:', apiPayload);
+      console.log('WireTransferPage: [handleConfirmAndInitiateTransfer] ABOUT TO AWAIT initiateWireTransfer. Payload:', apiPayload);
       const response = await initiateWireTransfer(apiPayload);
-      console.log('WireTransferPage: API call successful. Response:', response);
+      // If we reach here, the promise from initiateWireTransfer resolved.
+      console.log('WireTransferPage: [handleConfirmAndInitiateTransfer] initiateWireTransfer PROMISE RESOLVED. Response:', response);
       
-      setSuccessMessage(response?.message || 'Wire transfer initiated successfully!'); // Added optional chaining for response.message
+      // Check the structure of the response to ensure it's what you expect.
+      // Your backend might return { success: true, message: "..." } or just the transaction data.
+      if (response && (typeof response.message === 'string' || typeof response.id === 'number' || response.success === true)) { // Adjust this condition based on your actual success response
+        setSuccessMessage(response.message || 'Wire transfer initiated successfully!');
+        console.log('WireTransferPage: [handleConfirmAndInitiateTransfer] API call deemed successful. Success message set.');
       
-      // Clear form fields on success
-      setFromAccountId(userAccounts.length > 0 ? userAccounts[0].id : '');
-      setBeneficiaryName('');
-      setBeneficiaryAccountNumber('');
-      setBeneficiaryBankName('');
-      setRoutingNumber('');
-      setAmount('');
-      setCurrency('USD');
-      setPurpose('');
+        // Clear form fields on success
+        setFromAccountId(userAccounts.length > 0 ? userAccounts[0].id : '');
+        setBeneficiaryName('');
+        setBeneficiaryAccountNumber('');
+        setBeneficiaryBankName('');
+        setRoutingNumber('');
+        setAmount('');
+        setCurrency('USD');
+        setPurpose('');
+        
+        console.log('WireTransferPage: [handleConfirmAndInitiateTransfer] Setting step to "success".');
+        setStep('success'); // This will trigger the useEffect for navigation
+      } else {
+        // The API call resolved, but the response doesn't indicate success as expected.
+        console.error('WireTransferPage: [handleConfirmAndInitiateTransfer] API call resolved, but response indicates failure or unexpected structure:', response);
+        setError('Transfer seemed to complete, but response was not as expected. Please check your activity.');
+        setStep('form'); // Or stay on confirmation with an error
+      }
       
-      console.log('WireTransferPage: Setting step to "success". Current success message:', response?.message || 'Wire transfer initiated successfully!');
-      setStep('success'); // This will trigger the useEffect for navigation
-
     } catch (err) {
-      console.error('WireTransferPage: Error during transfer initiation:', err);
+      // This block executes if the promise from initiateWireTransfer REJECTS.
+      console.error('WireTransferPage: [handleConfirmAndInitiateTransfer] CAUGHT ERROR during initiateWireTransfer. Error object:', err);
+      console.error('WireTransferPage: [handleConfirmAndInitiateTransfer] Error name:', err.name);
+      console.error('WireTransferPage: [handleConfirmAndInitiateTransfer] Error message:', err.message);
+      if (err.data) {
+        console.error('WireTransferPage: [handleConfirmAndInitiateTransfer] Error data from API:', err.data);
+      }
       setError(err.message || 'Failed to initiate wire transfer.');
       setStep('form'); 
     } finally {
