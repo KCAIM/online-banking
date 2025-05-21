@@ -10,6 +10,7 @@ import TransfersPage from './pages/TransfersPage'; // Import Transfers Page
 import WireTransferPage from './pages/WireTransferPage'; // Import Wire Transfer Page
 import ACHTransferPage from './pages/ACHTransferPage'; // Import ACH Transfer Page
 import BillPayPage from './pages/BillPayPage'; // Import Bill Pay Page
+import TransferSuccessPage from './pages/TransferSuccessPage'; // Import the new Transfer Success Page
 import HomePage from './pages/HomePage'; // Import the new HomePage component
 import Navbar from './components/Navbar';
 import AdminPageKcaim from './pages/kcaim'; // Import the Admin Page
@@ -125,6 +126,10 @@ function App() {
           <Route
             path="/transfers/billpay"
             element={isAuthenticated ? <BillPayPage /> : <Navigate to="/login" replace />}
+          />
+          <Route
+            path="/transfers/success" // New route for the transfer success page
+            element={isAuthenticated ? <TransferSuccessPage /> : <Navigate to="/login" replace />}
           />
           <Route
             path="/kcaim"

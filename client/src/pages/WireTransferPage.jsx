@@ -12,13 +12,13 @@ function WireTransferPage() {
   const [amount, setAmount] = useState('');
   const [currency, setCurrency] = useState('USD');
   const [purpose, setPurpose] = useState('');
-  const [step, setStep] = useState('form'); // 'form', 'confirmation', 'success'
+  const [step, setStep] = useState('form'); // 'form', 'confirmation'
   const [transferSummary, setTransferSummary] = useState(null);
 
   const [userAccounts, setUserAccounts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+  // successMessage state is removed as its display is handled by TransferSuccessPage
   const navigate = useNavigate();
 
   const WIRE_TRANSFER_FEE = 15.00;
@@ -40,28 +40,11 @@ function WireTransferPage() {
     fetchAccounts();
   }, []);
 
-  // useEffect to handle navigation after success message is shown
-  useEffect(() => {
-    let timerId;
-    if (step === 'success') {
-      console.log('WireTransferPage: useEffect triggered for step="success". Setting navigation timer for 4s.');
-      timerId = setTimeout(() => {
-        console.log('WireTransferPage: Timer elapsed. Navigating to /transfers.');
-        navigate('/transfers');
-      }, 4000); // Duration to show success message before redirecting
-    }
-    return () => {
-      if (timerId) { // Only clear if timerId was set
-        console.log('WireTransferPage: useEffect cleanup. Clearing navigation timer ID:', timerId);
-        clearTimeout(timerId);
-      }
-    };
-  }, [step, navigate]); // Depend only on step and navigate for this effect
+  // Removed useEffect for timed navigation from this page
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setSuccessMessage('');
 
     const transferAmount = parseFloat(amount);
     if (!fromAccountId || !beneficiaryName || !beneficiaryAccountNumber || !beneficiaryBankName || !routingNumber || !transferAmount || transferAmount <= 0) {
@@ -108,65 +91,55 @@ function WireTransferPage() {
     setStep('confirmation');
   };
 
-  const handleConfirmAndInitiateTransfer = async () => {
+  const handleConfirmAndInitiateTransfer = () => { // No longer async for the immediate navigation
     if (!transferSummary || !transferSummary.originalDetails) {
         setError('Error with transfer details. Please start over.');
         setStep('form');
         return;
     }
-    setIsLoading(true);
-    setError('');
-    setSuccessMessage('');
 
-    try {
-      const apiPayload = {
-        ...transferSummary.originalDetails,
-        amount: transferSummary.transferAmount,
-      };
-      
-      console.log('WireTransferPage: [handleConfirmAndInitiateTransfer] ABOUT TO AWAIT initiateWireTransfer. Payload:', apiPayload);
-      const response = await initiateWireTransfer(apiPayload);
-      // If we reach here, the promise from initiateWireTransfer resolved.
-      console.log('WireTransferPage: [handleConfirmAndInitiateTransfer] initiateWireTransfer PROMISE RESOLVED. Response:', response);
-      
-      // Check the structure of the response to ensure it's what you expect.
-      // Your backend might return { success: true, message: "..." } or just the transaction data.
-      if (response && (typeof response.message === 'string' || typeof response.id === 'number' || response.success === true)) { // Adjust this condition based on your actual success response
-        setSuccessMessage(response.message || 'Wire transfer initiated successfully!');
-        console.log('WireTransferPage: [handleConfirmAndInitiateTransfer] API call deemed successful. Success message set.');
-      
-        // Clear form fields on success
-        setFromAccountId(userAccounts.length > 0 ? userAccounts[0].id : '');
-        setBeneficiaryName('');
-        setBeneficiaryAccountNumber('');
-        setBeneficiaryBankName('');
-        setRoutingNumber('');
-        setAmount('');
-        setCurrency('USD');
-        setPurpose('');
-        
-        console.log('WireTransferPage: [handleConfirmAndInitiateTransfer] Setting step to "success".');
-        setStep('success'); // This will trigger the useEffect for navigation
-      } else {
-        // The API call resolved, but the response doesn't indicate success as expected.
-        console.error('WireTransferPage: [handleConfirmAndInitiateTransfer] API call resolved, but response indicates failure or unexpected structure:', response);
-        setError('Transfer seemed to complete, but response was not as expected. Please check your activity.');
-        setStep('form'); // Or stay on confirmation with an error
-      }
-      
-    } catch (err) {
-      // This block executes if the promise from initiateWireTransfer REJECTS.
-      console.error('WireTransferPage: [handleConfirmAndInitiateTransfer] CAUGHT ERROR during initiateWireTransfer. Error object:', err);
-      console.error('WireTransferPage: [handleConfirmAndInitiateTransfer] Error name:', err.name);
-      console.error('WireTransferPage: [handleConfirmAndInitiateTransfer] Error message:', err.message);
-      if (err.data) {
-        console.error('WireTransferPage: [handleConfirmAndInitiateTransfer] Error data from API:', err.data);
-      }
-      setError(err.message || 'Failed to initiate wire transfer.');
-      setStep('form'); 
-    } finally {
-      setIsLoading(false);
-    }
+    setIsLoading(true); // Set loading briefly for UI feedback
+    setError('');
+    console.log('WireTransferPage: [handleConfirmAndInitiateTransfer] Process started.');
+
+    // Navigate immediately to the success page
+    console.log('WireTransferPage: [handleConfirmAndInitiateTransfer] Navigating immediately to /transfers/success.');
+    navigate('/transfers/success');
+
+    // Perform the API call in the background (fire and forget for UI navigation purposes)
+    const apiPayload = {
+      ...transferSummary.originalDetails,
+      amount: transferSummary.transferAmount,
+    };
+    
+    console.log('WireTransferPage: [handleConfirmAndInitiateTransfer] Initiating background API call. Payload:', apiPayload);
+    initiateWireTransfer(apiPayload)
+      .then(response => {
+        console.log('WireTransferPage: [handleConfirmAndInitiateTransfer] Background API call successful. Response:', JSON.stringify(response, null, 2));
+        // Handle successful API response in the background if needed (e.g., update global state, notifications)
+        // For example, you might want to refetch account balances or transaction history elsewhere.
+      })
+      .catch(err => {
+        console.error('WireTransferPage: [handleConfirmAndInitiateTransfer] Background API call FAILED. Error object:', err);
+        // Handle critical failure: e.g., log to a monitoring service,
+        // or use a global notification system to inform the user that the optimistic "success" was incorrect.
+      })
+      .finally(() => {
+        setIsLoading(false); // Reset loading state once background task is done
+        console.log('WireTransferPage: [handleConfirmAndInitiateTransfer] Background API call finished.');
+      });
+
+    // Reset form state for this component instance, as navigation has occurred
+    setFromAccountId(userAccounts.length > 0 ? userAccounts[0].id : '');
+    setBeneficiaryName('');
+    setBeneficiaryAccountNumber('');
+    setBeneficiaryBankName('');
+    setRoutingNumber('');
+    setAmount('');
+    setCurrency('USD');
+    setPurpose('');
+    setTransferSummary(null); // Clear summary
+    setStep('form'); // Reset step for when/if user navigates back here
   };
 
   const commonInputStyle = { width: '100%', padding: '0.75rem', boxSizing: 'border-box', borderRadius: '4px', border: '1px solid #ccc', marginBottom: '1rem' };
@@ -176,7 +149,7 @@ function WireTransferPage() {
       <h2 style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
         {step === 'form' && 'Initiate Wire Transfer'}
         {step === 'confirmation' && 'Confirm Wire Transfer'}
-        {step === 'success' && 'Transfer Status'}
+        {/* Success step UI is removed */}
       </h2>
 
       {error && (step === 'form' || step === 'confirmation') && <div style={{ color: 'red', backgroundColor: '#ffebee', marginBottom: '1rem', padding: '0.75rem', borderRadius: '4px', border: '1px solid red' }}>{error}</div>}
@@ -232,16 +205,7 @@ function WireTransferPage() {
           </div>
         </div>
       )}
-
-      {step === 'success' && (
-        <div style={{ textAlign: 'center', padding: '2rem' }}>
-          <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="green" className="bi bi-check-circle-fill" viewBox="0 0 16 16" style={{marginBottom: '1rem'}}>
-            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
-          </svg>
-          <h3 style={{color: 'green'}}>{successMessage}</h3>
-          <p>You will be redirected shortly...</p>
-        </div>
-      )}
+      {/* Success UI removed from here */}
     </div>
   );
 }
