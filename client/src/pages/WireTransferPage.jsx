@@ -1,7 +1,7 @@
 // c:\Users\USER\online-banking\client\src\pages\WireTransferPage.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getUserAccounts, initiateWireTransfer } from '../services/api'; // Ensure initiateWireTransfer is imported
+import { getUserAccounts, initiateWireTransfer } from '../services/api';
 
 function WireTransferPage() {
   const [fromAccountId, setFromAccountId] = useState('');
@@ -34,7 +34,7 @@ function WireTransferPage() {
         }
       } catch (err) {
         setError('Failed to load your accounts. Please try again.');
-        console.error("Error fetching accounts:", err);
+        console.error("WireTransferPage: Error fetching accounts:", err);
       }
     };
     fetchAccounts();
@@ -43,18 +43,20 @@ function WireTransferPage() {
   // useEffect to handle navigation after success message is shown
   useEffect(() => {
     let timerId;
-    if (step === 'success' && successMessage) {
+    if (step === 'success') {
+      console.log('WireTransferPage: useEffect triggered for step="success". Setting navigation timer for 4s.');
       timerId = setTimeout(() => {
+        console.log('WireTransferPage: Timer elapsed. Navigating to /transfers.');
         navigate('/transfers');
-        // Optionally reset step to 'form' if user might navigate back to this instance
-        // without a full remount, though typically not needed if navigating away.
-        // setStep('form'); 
       }, 4000); // Duration to show success message before redirecting
     }
     return () => {
-      clearTimeout(timerId); // Cleanup timeout if component unmounts or dependencies change
+      if (timerId) { // Only clear if timerId was set
+        console.log('WireTransferPage: useEffect cleanup. Clearing navigation timer ID:', timerId);
+        clearTimeout(timerId);
+      }
     };
-  }, [step, successMessage, navigate]);
+  }, [step, navigate]); // Depend only on step and navigate for this effect
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
@@ -122,9 +124,11 @@ function WireTransferPage() {
         amount: transferSummary.transferAmount,
       };
       
+      console.log('WireTransferPage: Initiating API call with payload:', apiPayload);
       const response = await initiateWireTransfer(apiPayload);
+      console.log('WireTransferPage: API call successful. Response:', response);
       
-      setSuccessMessage(response.message || 'Wire transfer initiated successfully!');
+      setSuccessMessage(response?.message || 'Wire transfer initiated successfully!'); // Added optional chaining for response.message
       
       // Clear form fields on success
       setFromAccountId(userAccounts.length > 0 ? userAccounts[0].id : '');
@@ -136,10 +140,11 @@ function WireTransferPage() {
       setCurrency('USD');
       setPurpose('');
       
+      console.log('WireTransferPage: Setting step to "success". Current success message:', response?.message || 'Wire transfer initiated successfully!');
       setStep('success'); // This will trigger the useEffect for navigation
 
     } catch (err) {
-      console.error('Wire Transfer Page Error:', err);
+      console.error('WireTransferPage: Error during transfer initiation:', err);
       setError(err.message || 'Failed to initiate wire transfer.');
       setStep('form'); 
     } finally {
