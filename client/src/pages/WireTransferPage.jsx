@@ -34,18 +34,33 @@ function WireTransferPage() {
         }
       } catch (err) {
         setError('Failed to load your accounts. Please try again.');
-        console.error(err);
+        console.error("Error fetching accounts:", err);
       }
     };
     fetchAccounts();
   }, []);
+
+  // useEffect to handle navigation after success message is shown
+  useEffect(() => {
+    let timerId;
+    if (step === 'success' && successMessage) {
+      timerId = setTimeout(() => {
+        navigate('/transfers');
+        // Optionally reset step to 'form' if user might navigate back to this instance
+        // without a full remount, though typically not needed if navigating away.
+        // setStep('form'); 
+      }, 4000); // Duration to show success message before redirecting
+    }
+    return () => {
+      clearTimeout(timerId); // Cleanup timeout if component unmounts or dependencies change
+    };
+  }, [step, successMessage, navigate]);
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccessMessage('');
 
-    // Basic Validations (more can be added)
     const transferAmount = parseFloat(amount);
     if (!fromAccountId || !beneficiaryName || !beneficiaryAccountNumber || !beneficiaryBankName || !routingNumber || !transferAmount || transferAmount <= 0) {
       setError('Please fill in all required fields and ensure amount is positive.');
@@ -76,7 +91,6 @@ function WireTransferPage() {
     }
 
     setTransferSummary({
-        // Use camelCase properties
         fromAccountDisplay: `${selectedAccount.accountType} - ${selectedAccount.accountNumber}`,
         beneficiaryName: transferDetails.beneficiaryName,
         beneficiaryAccountNumber: transferDetails.beneficiaryAccountNumber,
@@ -87,7 +101,7 @@ function WireTransferPage() {
         totalDebit: totalDebitAmount,
         currency: transferDetails.currency,
         purpose: transferDetails.purpose,
-        originalDetails: transferDetails // Store original details for actual submission
+        originalDetails: transferDetails
     });
     setStep('confirmation');
   };
@@ -101,21 +115,16 @@ function WireTransferPage() {
     setIsLoading(true);
     setError('');
     setSuccessMessage('');
-    console.log('WireTransferPage: [handleConfirmAndInitiateTransfer] Set isLoading to true');
 
     try {
-      // Use originalDetails for the API call, as it contains the amount without the fee
-      // Ensure amount sent to backend is the transfer amount, not total debit
       const apiPayload = {
         ...transferSummary.originalDetails,
-        amount: transferSummary.transferAmount, // Ensure this is the actual amount to transfer
+        amount: transferSummary.transferAmount,
       };
       
       const response = await initiateWireTransfer(apiPayload);
-      console.log('WireTransferPage: [handleConfirmAndInitiateTransfer] API response received', response);
       
       setSuccessMessage(response.message || 'Wire transfer initiated successfully!');
-      console.log('WireTransferPage: [handleConfirmAndInitiateTransfer] Success message set:', response.message || 'Wire transfer initiated successfully!');
       
       // Clear form fields on success
       setFromAccountId(userAccounts.length > 0 ? userAccounts[0].id : '');
@@ -127,21 +136,14 @@ function WireTransferPage() {
       setCurrency('USD');
       setPurpose('');
       
-      setStep('success');
-      console.log('WireTransferPage: [handleConfirmAndInitiateTransfer] Step set to "success"');
+      setStep('success'); // This will trigger the useEffect for navigation
 
-      setTimeout(() => {
-        console.log('WireTransferPage: [handleConfirmAndInitiateTransfer] Navigating to /transfers after timeout');
-        navigate('/transfers');
-        setStep('form'); // Reset step for next time
-      }, 4000);
     } catch (err) {
-      console.error('Wire Transfer Page Error:', err); // Log the full error object
+      console.error('Wire Transfer Page Error:', err);
       setError(err.message || 'Failed to initiate wire transfer.');
-      setStep('form'); // Go back to form on error
+      setStep('form'); 
     } finally {
       setIsLoading(false);
-      console.log('WireTransferPage: [handleConfirmAndInitiateTransfer] Set isLoading to false in finally block');
     }
   };
 
@@ -161,7 +163,6 @@ function WireTransferPage() {
         <form onSubmit={handleFormSubmit}>
           <div><label>From Account:</label><select value={fromAccountId} onChange={(e) => setFromAccountId(e.target.value)} required style={commonInputStyle} disabled={isLoading}>
             <option value="">Select Account</option>
-            {/* Use camelCase properties */}
             {userAccounts.map(acc => <option key={acc.id} value={acc.id}>{acc.accountType} - {acc.accountNumber} (Balance: ${acc.balance.toFixed(2)})</option>)}
           </select></div>
 
@@ -212,7 +213,6 @@ function WireTransferPage() {
 
       {step === 'success' && (
         <div style={{ textAlign: 'center', padding: '2rem' }}>
-          {console.log('WireTransferPage: [Render] RENDERING SUCCESS STEP UI, successMessage:', successMessage)}
           <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="green" className="bi bi-check-circle-fill" viewBox="0 0 16 16" style={{marginBottom: '1rem'}}>
             <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
           </svg>
