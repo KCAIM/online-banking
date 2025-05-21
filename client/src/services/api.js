@@ -1,9 +1,9 @@
 // c:\Users\USER\online-banking\client\src\services\api.js
 
-// Read the API URL from environment variables (set on Render)
-// Fallback to '/api' for local development, which Vite will proxy
-// Ensure VITE_API_URL is set in Render environment variables for the frontend service
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+// Read the API URL from environment variables (set on Render to your backend's base URL, e.g., https://your-backend.onrender.com)
+// Fallback to an empty string for local development; Vite proxy will handle paths starting with /api.
+// Ensure VITE_API_URL is set in Render environment variables for the frontend service.
+const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
 /**
  * Helper function to handle API responses.
@@ -67,7 +67,7 @@ function getAuthToken() {
 
 /**
  * Generic fetch wrapper.
- * @param {string} endpoint - The API endpoint (e.g., '/auth/login').
+ * @param {string} endpoint - The API endpoint (e.g., '/api/auth/login').
  * @param {object} [options={}] - Fetch options (method, headers, body).
  * @returns {Promise<any>}
  */
@@ -96,58 +96,44 @@ async function fetchApi(endpoint, options = {}) {
 }
 
 // Authentication API calls
-export const loginUser = (credentials) => fetchApi('/auth/login', { method: 'POST', body: credentials });
-export const signupUser = (userData) => fetchApi('/auth/signup', { method: 'POST', body: userData });
-export const getCurrentUser = () => fetchApi('/auth/user');
+export const loginUser = (credentials) => fetchApi('/api/auth/login', { method: 'POST', body: credentials });
+export const signupUser = (userData) => fetchApi('/api/auth/signup', { method: 'POST', body: userData });
+export const getCurrentUser = () => fetchApi('/api/auth/user');
 export const logoutUser = () => {
     // For JWT, logout is primarily client-side by removing the token
     localStorage.removeItem('authToken');
     // Optionally, call a backend logout endpoint if it exists (e.g., for session invalidation)
-    // return fetchApi('/auth/logout', { method: 'POST' });
+    // return fetchApi('/api/auth/logout', { method: 'POST' });
     return Promise.resolve(); // Return a resolved promise for consistency
 };
 
 // Account API calls
-export const getUserAccounts = () => fetchApi('/accounts');
-export const createNewAccount = (accountData) => fetchApi('/accounts', { method: 'POST', body: accountData });
-export const getAccountDetails = (accountId) => fetchApi(`/accounts/${accountId}`);
+export const getUserAccounts = () => fetchApi('/api/accounts');
+export const createNewAccount = (accountData) => fetchApi('/api/accounts', { method: 'POST', body: accountData });
+export const getAccountDetails = (accountId) => fetchApi(`/api/accounts/${accountId}`);
 
 // Transaction API calls
-export const getAccountTransactions = (accountId) => fetchApi(`/transactions/${accountId}`);
-export const initiateWireTransfer = (transferData) => fetchApi('/transactions/wire', { method: 'POST', body: transferData });
-export const performACHTransfer = (transferData) => fetchApi('/transactions/ach', { method: 'POST', body: transferData });
-export const performBillPay = (billPayData) => fetchApi('/transactions/billpay', { method: 'POST', body: billPayData });
+export const getAccountTransactions = (accountId) => fetchApi(`/api/transactions/${accountId}`);
+export const initiateWireTransfer = (transferData) => fetchApi('/api/transactions/wire', { method: 'POST', body: transferData });
+export const performACHTransfer = (transferData) => fetchApi('/api/transactions/ach', { method: 'POST', body: transferData });
+export const performBillPay = (billPayData) => fetchApi('/api/transactions/billpay', { method: 'POST', body: billPayData });
 
 // Message API calls
-export const getInboxMessages = () => fetchApi('/messages/inbox');
-export const markMessageAsRead = (messageId) => fetchApi(`/messages/inbox/${messageId}/read`, { method: 'PUT' });
-export const getFlashMessages = () => fetchApi('/messages/flash');
+export const getInboxMessages = () => fetchApi('/api/messages/inbox');
+export const markMessageAsRead = (messageId) => fetchApi(`/api/messages/inbox/${messageId}/read`, { method: 'PUT' });
+export const getFlashMessages = () => fetchApi('/api/messages/flash');
 
-// Add more API functions as needed for admin panel, etc.
-// Admin API calls (example, expand as needed)
-export const getAllUsersForAdmin = () => fetchApi('/admin/users');
-export const getUserDetailsForAdmin = (userId) => fetchApi(`/admin/users/${userId}`);
-// Admin Account Management
-export const getAllAccountsAdmin = () => fetchApi('/admin/accounts');
-export const getAccountTransactionsAdmin = (accountId) => fetchApi(`/admin/accounts/${accountId}/transactions`);
-export const toggleAccountTransfersAdmin = (accountId) => fetchApi(`/admin/accounts/${accountId}/toggle-transfers`, { method: 'PATCH' });
-export const updateUserBalanceAdmin = (accountId, balanceData) => fetchApi(`/admin/accounts/${accountId}/balance`, { method: 'PUT', body: balanceData });
-
-// Admin Transaction Management
-export const createTransactionAdmin = (transactionData) => fetchApi('/admin/transactions', { method: 'POST', body: transactionData });
-export const getAllTransactionsAdmin = () => fetchApi('/admin/transactions');
-
-// Admin Settings Management
-export const getActivitySettingsAdmin = () => fetchApi('/admin/settings/activities');
-export const updateActivitySettingsAdmin = (settings) => fetchApi('/admin/settings/activities', { method: 'PUT', body: settings });
-
-// Admin Message Management
-export const sendMessageToUserAdmin = (messageData) => fetchApi('/admin/messages/inbox', { method: 'POST', body: messageData });
-export const createFlashMessageAdmin = (flashData) => fetchApi('/admin/messages/flash', { method: 'POST', body: flashData });
-export const deactivateFlashMessageAdmin = (messageId) => fetchApi(`/admin/messages/flash/${messageId}/deactivate`, { method: 'PUT' });
-
-// Admin User Management (more specific if needed beyond getAllUsersForAdmin and getUserDetailsForAdmin)
-// export const makeUserAdmin = (userId) => fetchApi(`/admin/users/${userId}/make-admin`, { method: 'POST' }); // Example
-// export const removeUserAdmin = (userId) => fetchApi(`/admin/users/${userId}/remove-admin`, { method: 'POST' }); // Example
-// export const getSystemSettings = () => fetchApi('/admin/settings'); // This might be redundant with getActivitySettingsAdmin
-// export const updateSystemSettings = (settings) => fetchApi('/admin/settings', { method: 'PUT', body: settings });
+// Admin API calls
+export const getAllUsersForAdmin = () => fetchApi('/api/admin/users');
+export const getUserDetailsForAdmin = (userId) => fetchApi(`/api/admin/users/${userId}`);
+export const getAllAccountsAdmin = () => fetchApi('/api/admin/accounts');
+export const getAccountTransactionsAdmin = (accountId) => fetchApi(`/api/admin/accounts/${accountId}/transactions`);
+export const toggleAccountTransfersAdmin = (accountId) => fetchApi(`/api/admin/accounts/${accountId}/toggle-transfers`, { method: 'PATCH' });
+export const updateUserBalanceAdmin = (accountId, balanceData) => fetchApi(`/api/admin/accounts/${accountId}/balance`, { method: 'PUT', body: balanceData });
+export const createTransactionAdmin = (transactionData) => fetchApi('/api/admin/transactions', { method: 'POST', body: transactionData });
+export const getAllTransactionsAdmin = () => fetchApi('/api/admin/transactions');
+export const getActivitySettingsAdmin = () => fetchApi('/api/admin/settings/activities');
+export const updateActivitySettingsAdmin = (settings) => fetchApi('/api/admin/settings/activities', { method: 'PUT', body: settings });
+export const sendMessageToUserAdmin = (messageData) => fetchApi('/api/admin/messages/inbox', { method: 'POST', body: messageData });
+export const createFlashMessageAdmin = (flashData) => fetchApi('/api/admin/messages/flash', { method: 'POST', body: flashData });
+export const deactivateFlashMessageAdmin = (messageId) => fetchApi(`/api/admin/messages/flash/${messageId}/deactivate`, { method: 'PUT' });
