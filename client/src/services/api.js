@@ -1,5 +1,9 @@
 // c:\Users\USER\online-banking\client\src\services\api.js
-const API_BASE_URL = '/api'; // Relative path for Render deployment
+
+// Read the API URL from environment variables (set on Render)
+// Fallback to '/api' for local development, which Vite will proxy
+// Ensure VITE_API_URL is set in Render environment variables for the frontend service
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 /**
  * Helper function to handle API responses.
