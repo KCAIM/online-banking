@@ -71,7 +71,7 @@ function getAuthToken() {
  * @param {object} [options={}] - Fetch options (method, headers, body).
  * @returns {Promise<any>}
  */
-async function fetchApi(endpoint, options = {}) {
+export async function fetchApi(endpoint, options = {}) { // Added export here
   const token = getAuthToken();
   const headers = {
     'Content-Type': 'application/json',
