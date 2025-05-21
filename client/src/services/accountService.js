@@ -1,114 +1,59 @@
 // c:\Users\USER\online-banking\client\src\services\accountService.js
-const API_BASE_URL = '/api'; // This will be proxied by Vite to your backend
-
-/**
- * Helper function to handle API responses specifically for this service.
- * If you have a global API handler (like in your api.js), consider reusing it.
- * @param {Response} response - The fetch response object.
- * @returns {Promise<any>} - The JSON response or throws an error.
- */
-async function handleAccountServiceResponse(response) {
-  if (response.status === 204) { // No Content
-    return null;
-  }
-
-  if (!response.ok) { // Covers 4xx and 5xx errors
-    let errorData = { message: response.statusText || `HTTP error! status: ${response.status}` };
-    const contentType = response.headers.get("content-type");
-
-    if (contentType && contentType.indexOf("application/json") !== -1) {
-      try {
-        const jsonError = await response.json();
-        errorData = { ...jsonError, message: jsonError.message || errorData.message };
-      } catch (e) {
-        console.warn('Could not parse JSON error response in accountService, though content-type was application/json:', e);
-        // Keep the initial errorData based on statusText
-      }
-    } else {
-      // If not JSON, try to get text, but be prepared for it to be empty
-      try {
-        const textError = await response.text();
-        if (textError) {
-          errorData.message = textError;
-        }
-      } catch (e) {
-        console.warn('Could not read error response as text in accountService:', e);
-        // Keep the initial errorData based on statusText
-      }
-    }
-    
-    const error = new Error(errorData.message);
-    error.status = response.status; // Attach status for more context
-    error.data = errorData;       // Attach full error data if available
-    throw error;
-  }
-
-  // If response.ok is true, try to parse as JSON
-  // but handle cases where a successful response might not have a body or is not JSON
-  const contentType = response.headers.get("content-type");
-  if (contentType && contentType.indexOf("application/json") !== -1) {
-    return response.json();
-  }
-  // If successful but not JSON (e.g. just a 201 OK with no body, or text)
-  // You might want to return response.text() or null depending on expectations
-  // For createNewAccount, we expect a JSON object back.
-  // If the backend sends a 201 with no body but it's application/json, .json() would fail.
-  // However, your backend /api/accounts POST route sends back the newAccount object as JSON.
-  return response.text().then(text => {
-    if (text) {
-        try {
-            return JSON.parse(text); // Try to parse if text is not empty
-        } catch (e) {
-            console.warn('Successful response was not valid JSON in accountService, returning text:', text);
-            return text; // Fallback to text if parsing fails
-        }
-    }
-    return null; // Return null if text is empty
-  });
-}
-
-/**
- * Helper function to get the auth token from localStorage.
- * @returns {string|null} - The token or null.
- */
-function getAuthToken() {
-  return localStorage.getItem('authToken');
-}
+import { fetchApi } from './api'; // Import the centralized API handler from api.js
 
 /**
  * Creates a new account for the authenticated user by calling the backend API.
- * This function is tailored to work with your `src/routes/accounts.js` backend endpoint.
+ * This function is tailored to work with your `src/routes/accounts.js` backend endpoint
+ * and now uses the central `fetchApi` utility for consistency and correct API base URL handling.
  * @param {object} accountData - The account data.
  *   Expected to have `accountType` (string) and `initialBalance` (number).
  * @returns {Promise<object>} A promise that resolves to the new account object from the backend.
  * @throws {Error} If the API call fails or the backend returns an error.
  */
 export const createNewAccount = async (accountData) => {
-  console.log('Attempting to create new account via accountService.js with:', accountData);
-  const token = getAuthToken();
-
-  if (!token) {
-    // It's often better to let the component handle UI for this,
-    // but throwing an error here is also valid.
-    throw new Error('Authentication error: You are not logged in.');
-  }
+  console.log('Attempting to create new account via accountService.js (using fetchApi) with:', accountData);
+  
+  // The explicit token check (if (!token) { ... }) previously here can often be omitted.
+  // fetchApi (from api.js) will include the token if available.
+  // If the token is missing and required by the backend, the API call will result
+  // in an error (e.g., 401 Unauthorized), which handleResponse (used by fetchApi) will process.
+  // This keeps authentication logic primarily on the backend and in the central API handler.
 
   try {
-    const response = await fetch(`${API_BASE_URL}/accounts`, {
+    // Delegate to fetchApi for the actual API call.
+    // fetchApi handles:
+    // - Prepending the correct API_BASE_URL (from VITE_API_URL in production, or '' for local proxy)
+    // - Setting 'Content-Type': 'application/json'
+    // - Stringifying the body
+    // - Adding the Authorization header with the token
+    // - Handling the response (parsing JSON, error handling via handleResponse)
+    const newAccount = await fetchApi('/api/accounts', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-      body: JSON.stringify(accountData), // Expects { accountType, initialBalance }
+      body: accountData, // fetchApi will stringify this object
     });
-
-    return await handleAccountServiceResponse(response);
+    return newAccount;
   } catch (error) {
-    // Log the error and re-throw to be caught by the calling component
-    console.error('Error in createNewAccount service call:', error.message, error.data || '');
-    // You might want to throw a more specific error or the original error
-    throw error;
+    // Log the error with context from this service and re-throw
+    // This allows the calling component (e.g., in your UI) to catch and handle it further.
+    console.error('Error in accountService.js createNewAccount service call:', error.message, error.data || '');
+    throw error; 
   }
 };
+
+// Important Note:
+// Your api.js file (as per the context provided earlier) already exports a function:
+//   export const createNewAccount = (accountData) => fetchApi('/api/accounts', { method: 'POST', body: accountData });
+// This function in api.js is functionally identical to the createNewAccount function defined above.
+//
+// Consider whether you need this createNewAccount function duplicated in accountService.js.
+// You could:
+// 1. Directly import and use `createNewAccount` from './api' in your components.
+// 2. If `accountService.js` is intended as a dedicated module for all account-related
+//    operations, you could re-export it from here:
+//    `export { createNewAccount } from './api';`
+//    (potentially renaming it if needed: `export { createNewAccount as createNewUserAccount } from './api';`)
+//
+// The current implementation in this file (accountService.js) is fine if you prefer
+// to have explicit service functions here, even if they are thin wrappers around fetchApi,
+// perhaps for adding specific logging or pre/post-processing logic unique to accountService.
 
