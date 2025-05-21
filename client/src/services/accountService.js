@@ -39,21 +39,3 @@ export const createNewAccount = async (accountData) => {
     throw error; 
   }
 };
-
-// Important Note:
-// Your api.js file (as per the context provided earlier) already exports a function:
-//   export const createNewAccount = (accountData) => fetchApi('/api/accounts', { method: 'POST', body: accountData });
-// This function in api.js is functionally identical to the createNewAccount function defined above.
-//
-// Consider whether you need this createNewAccount function duplicated in accountService.js.
-// You could:
-// 1. Directly import and use `createNewAccount` from './api' in your components.
-// 2. If `accountService.js` is intended as a dedicated module for all account-related
-//    operations, you could re-export it from here:
-//    `export { createNewAccount } from './api';`
-//    (potentially renaming it if needed: `export { createNewAccount as createNewUserAccount } from './api';`)
-//
-// The current implementation in this file (accountService.js) is fine if you prefer
-// to have explicit service functions here, even if they are thin wrappers around fetchApi,
-// perhaps for adding specific logging or pre/post-processing logic unique to accountService.
-
