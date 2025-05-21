@@ -1,0 +1,140 @@
+:root {
+  /* Spotify-inspired Color Palette */
+  --primary-bg: #121212; /* Very dark grey, almost black */
+  --secondary-bg: #181818; /* Dark grey */
+  --tertiary-bg: #282828; /* Lighter dark grey for elements */
+  --primary-text: #FFFFFF; /* White */
+  --secondary-text: #b3b3b3; /* Light grey for less important text */
+  --accent-green: #1DB954; /* Spotify green */
+  --accent-green-hover: #1ed760;
+  --error-red: #f44336;
+
+  --border-radius-sm: 8px;
+  --border-radius-md: 12px;
+  --border-radius-lg: 16px;
+
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  line-height: 1.6;
+  font-weight: 400;
+  color: var(--primary-text);
+  background-color: var(--primary-bg);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  color: var(--primary-text);
+  background-color: var(--primary-bg);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--primary-text);
+  margin-top: 0;
+}
+
+/* General Container */
+.container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: var(--secondary-bg);
+  border-radius: var(--border-radius-lg);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Forms */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+label {
+  font-weight: bold;
+  color: var(--secondary-text);
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="number"],
+select {
+  padding: 0.8em 1em;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--tertiary-bg);
+  background-color: var(--tertiary-bg);
+  color: var(--primary-text);
+  font-size: 1em;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus,
+input[type="number"]:focus,
+select:focus {
+  outline: none;
+  border-color: var(--accent-green);
+  box-shadow: 0 0 0 2px var(--accent-green-hover);
+}
+
+/* Buttons */
+.btn {
+  padding: 0.8em 1.5em;
+  font-size: 1em;
+  font-weight: bold;
+  color: var(--primary-text);
+  background-color: var(--accent-green);
+  border: none;
+  border-radius: var(--border-radius-md); /* Curved edges */
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+  text-align: center;
+  text-decoration: none;
+}
+
+.btn:hover {
+  background-color: var(--accent-green-hover); /* Hover effect */
+  transform: translateY(-1px);
+}
+
+.btn:active {
+  transform: translateY(0px);
+}
+
+.btn-secondary {
+  background-color: var(--tertiary-bg);
+}
+
+.btn-secondary:hover {
+  background-color: #383838;
+}
+
+.error-message {
+  color: var(--error-red);
+  background-color: rgba(244, 67, 54, 0.1);
+  padding: 0.75rem;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--error-red);
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.success-message {
+  color: var(--accent-green);
+  background-color: rgba(29, 185, 84, 0.1);
+  padding: 0.75rem;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--accent-green);
+  margin-bottom: 1rem;
+  text-align: center;
+}
