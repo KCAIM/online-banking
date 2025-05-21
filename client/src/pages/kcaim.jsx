@@ -1,126 +1,38 @@
 import React, { useState, useEffect } from 'react';
+import {
+  fetchApi, // For operations not yet in api.js or for direct use
+  getAllUsersForAdmin,
+  getAllAccountsAdmin,
+  getAccountTransactionsAdmin,
+  toggleAccountTransfersAdmin,
+  // If your api.js exports admin-specific user CRUD, import them here.
+  // e.g., createAdminUser, updateAdminUser, toggleAdminUserStatus
+  // For now, we'll define helpers below using fetchApi.
+} from '../services/api'; // Assuming kcaim.jsx is in src/pages
 
-// Helper function to get the auth token
-const getAuthToken = () => localStorage.getItem('authToken');
-
-// API service for admin operations
-const adminApiService = {
-  // User Management API Methods
-  getUsers: async () => {
-    const token = getAuthToken();
-    const response = await fetch('/api/admin/users', {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'Failed to fetch users' }));
-      throw new Error(errorData.message || 'Failed to fetch users');
-    }
-    return response.json();
-  },
-
-  createUser: async (userData) => {
-    const token = getAuthToken();
-    const response = await fetch('/api/admin/users', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(userData),
-    });
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'Failed to create user' }));
-      throw new Error(errorData.message || 'Failed to create user');
-    }
-    return response.json(); // Assuming backend returns the created user object
-  },
-
-  updateUser: async (userId, updatedData) => {
-    const token = getAuthToken();
-    const response = await fetch(`/api/admin/users/${userId}`, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(updatedData),
-    });
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'Failed to update user' }));
-      throw new Error(errorData.message || 'Failed to update user');
-    }
-    return response.json(); // Assuming backend returns the updated user object
-  },
-
-  toggleUserStatus: async (userId) => {
-    const token = getAuthToken();
-    const response = await fetch(`/api/admin/users/${userId}/toggle-status`, {
-      method: 'PATCH',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'Failed to toggle user status' }));
-      throw new Error(errorData.message || 'Failed to toggle user status');
-    }
-    return response.json(); // Assuming backend returns the updated user object
-  },
-
-  // === Account Oversight API Methods ===
-  getAllAccounts: async () => {
-    const token = getAuthToken();
-    const response = await fetch('/api/admin/accounts', {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'Failed to fetch accounts' }));
-      throw new Error(errorData.message || 'Failed to fetch accounts');
-    }
-    return response.json();
-  },
-
-  getAccountTransactions: async (accountId) => {
-    const token = getAuthToken();
-    const response = await fetch(`/api/admin/accounts/${accountId}/transactions`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'Failed to fetch transactions' }));
-      throw new Error(errorData.message || 'Failed to fetch transactions');
-    }
-    return response.json();
-  },
-
-  toggleAccountTransferStatus: async (accountId) => {
-    const token = getAuthToken();
-    const response = await fetch(`/api/admin/accounts/${accountId}/toggle-transfers`, {
-      method: 'PATCH', // Or PUT, depending on your API design
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    });
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'Failed to toggle account transfer status' }));
-      throw new Error(errorData.message || 'Failed to toggle account transfer status');
-    }
-    return response.json(); // Assuming backend returns the updated account object
-  },
+// --- Helper API functions using fetchApi for admin user operations ---
+// Recommendation: Move these admin-specific API functions to your services/api.js file
+// and export them from there for better organization.
+const adminCreateUserViaApi = (userData) => {
+  return fetchApi('/api/admin/users', { // Endpoint for admin creating a user
+    method: 'POST',
+    body: userData,
+  });
 };
+
+const adminUpdateUserViaApi = (userId, updatedData) => {
+  return fetchApi(`/api/admin/users/${userId}`, { // Endpoint for admin updating a user
+    method: 'PUT',
+    body: updatedData,
+  });
+};
+
+const adminToggleUserStatusViaApi = (userId) => {
+  return fetchApi(`/api/admin/users/${userId}/toggle-status`, { // Endpoint for admin toggling user status
+    method: 'PATCH',
+  });
+};
+// --- End Helper API functions ---
 
 const AdminPageKcaim = () => {
   // User management state
@@ -150,7 +62,7 @@ const AdminPageKcaim = () => {
       setIsLoadingUsers(true);
       // setError(null); // Clear specific errors if needed, or handle globally
       // setSuccessMessage('');
-      const fetchedUsers = await adminApiService.getUsers();
+      const fetchedUsers = await getAllUsersForAdmin();
       setUsers(fetchedUsers);
     } catch (err) {
       console.error("Failed to fetch users:", err);
@@ -165,7 +77,7 @@ const AdminPageKcaim = () => {
     try {
       setIsLoadingAccounts(true);
       // setError(null); // Clear previous errors for this specific fetch if needed
-      const fetchedAccounts = await adminApiService.getAllAccounts();
+      const fetchedAccounts = await getAllAccountsAdmin();
       console.log('Fetched accounts:', fetchedAccounts); // For debugging
       setAccounts(fetchedAccounts);
     } catch (err) {
@@ -203,7 +115,7 @@ const AdminPageKcaim = () => {
     try {
       setError(null);
       setSuccessMessage('');
-      const newUser = await adminApiService.createUser(userFormData);
+      const newUser = await adminCreateUserViaApi(userFormData);
       setShowCreateUserModal(false);
       if (newUser && newUser.username) {
         setSuccessMessage(`User "${newUser.username}" created successfully!`);
@@ -248,7 +160,7 @@ const AdminPageKcaim = () => {
       const { password, ...updatePayload } = userFormData; 
       const payloadToSend = password ? userFormData : updatePayload; // Send password only if it's entered
 
-      const updatedUser = await adminApiService.updateUser(currentUserToEdit.id, payloadToSend);
+      const updatedUser = await adminUpdateUserViaApi(currentUserToEdit.id, payloadToSend);
       setShowEditUserModal(false);
       setCurrentUserToEdit(null);
       if (updatedUser && updatedUser.username) {
@@ -268,7 +180,7 @@ const AdminPageKcaim = () => {
     try {
       setError(null);
       setSuccessMessage('');
-      const updatedUser = await adminApiService.toggleUserStatus(userId);
+      const updatedUser = await adminToggleUserStatusViaApi(userId);
       if (updatedUser && typeof updatedUser.username !== 'undefined' && typeof updatedUser.isActive !== 'undefined') {
         const statusText = (updatedUser.isActive === true || updatedUser.isActive === 1) ? 'Active' : 'Disabled';
         setSuccessMessage(`User "${updatedUser.username}" status toggled to ${statusText}.`);
@@ -291,7 +203,7 @@ const AdminPageKcaim = () => {
     setError(null); // Clear general errors when opening modal
     setSuccessMessage('');
     try {
-      const transactions = await adminApiService.getAccountTransactions(account.id || account._id);
+      const transactions = await getAccountTransactionsAdmin(account.id || account._id);
       setAccountTransactions(transactions);
     } catch (err) {
       console.error(`Failed to fetch transactions for account ${account.id || account._id}:`, err);
@@ -307,7 +219,7 @@ const AdminPageKcaim = () => {
     try {
       setError(null);
       setSuccessMessage('');
-      const updatedAccount = await adminApiService.toggleAccountTransferStatus(accountId);
+      const updatedAccount = await toggleAccountTransfersAdmin(accountId);
       if (updatedAccount && updatedAccount.accountNumber) {
         const statusText = (updatedAccount.transfersEnabled === true || updatedAccount.transfersEnabled === 1) ? 'Enabled' : 'Disabled';
         setSuccessMessage(`Transfers for account ${updatedAccount.accountNumber} ${statusText}.`);
