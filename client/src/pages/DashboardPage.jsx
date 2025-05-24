@@ -61,7 +61,7 @@ function DashboardPage() {
         </ul>
       ) : (
         <p>
-          You have no accounts yet. <Link to="/open-account" className="btn btn-primary">Open New Account</Link>
+          You have no accounts yet.
         </p>
       )}
       {/* More dashboard content here: recent transactions, quick actions, etc. */}
