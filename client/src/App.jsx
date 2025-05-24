@@ -11,6 +11,7 @@ import WireTransferPage from './pages/WireTransferPage'; // Import Wire Transfer
 import ACHTransferPage from './pages/ACHTransferPage'; // Import ACH Transfer Page
 import BillPayPage from './pages/BillPayPage'; // Import Bill Pay Page
 import TransferSuccessPage from './pages/TransferSuccessPage'; // Import the new Transfer Success Page
+import SignUpSuccessPage from './pages/SignUpSuccessPage'; // Import the SignUp Success Page
 import HomePage from './pages/HomePage'; // Import the new HomePage component
 import Navbar from './components/Navbar';
 import AdminPageKcaim from './pages/kcaim'; // Import the Admin Page
@@ -94,6 +95,10 @@ function App() {
           <Route
             path="/signup"
             element={!isAuthenticated ? <SignupPage /> : <Navigate to="/dashboard" replace />}
+          />
+          <Route
+            path="/signup-success" // Added route for SignUpSuccessPage
+            element={<SignUpSuccessPage />}
           />
           <Route
             path="/dashboard"
