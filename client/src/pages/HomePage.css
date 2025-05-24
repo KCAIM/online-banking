@@ -230,7 +230,7 @@
 
 @media (max-width: 768px) {
   .hero-section {
-    padding: 80px 15px;
+    padding: 50px 15px; /* Reduced padding */
   }
   .hero-section h1 {
     font-size: 2.4rem;
@@ -239,12 +239,22 @@
     font-size: 1.2rem;
   }
 
+  .features-section,
+  .cta-section,
+  .security-info-section {
+    padding-top: 50px;    /* Reduced top padding */
+    padding-bottom: 50px; /* Reduced bottom padding */
+    padding-left: 15px;   /* Added horizontal padding */
+    padding-right: 15px;  /* Added horizontal padding */
+  }
+
   .features-grid {
     grid-template-columns: 1fr; /* Stack features on smaller screens */
   }
-
   .feature-item {
-    margin-bottom: 20px;
+    padding: 20px 15px; /* Reduced padding */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06); /* Softer shadow for mobile */
+    margin-bottom: 20px; /* Existing margin */
   }
 
   .footer-links {
@@ -259,10 +269,21 @@
 
 @media (max-width: 480px) {
   .hero-section h1 {
-    font-size: 2rem;
+    font-size: 2rem; /* Existing style */
+  }
+  .hero-section {
+    padding: 30px 10px; /* Further reduced padding for very small screens */
   }
   .hero-section .subtitle {
     font-size: 1.1rem;
+  }
+  .features-section,
+  .cta-section,
+  .security-info-section {
+    padding-top: 30px;    /* Further reduced top padding */
+    padding-bottom: 30px; /* Further reduced bottom padding */
+    padding-left: 10px;   /* Further reduced horizontal padding */
+    padding-right: 10px;  /* Further reduced horizontal padding */
   }
   .homepage-content .btn-large { 
     padding: 10px 18px;
@@ -275,6 +296,11 @@
   .hero-cta .btn { 
     width: 80%;
     margin: 5px auto;
+  }
+
+  .feature-item {
+    padding: 15px 10px; /* Further reduced padding */
+    box-shadow: none; /* Remove shadow for cleanest look on small screens */
   }
 
   .features-section h2, .cta-section h2, .security-info-section h2 {
