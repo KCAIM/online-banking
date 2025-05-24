@@ -230,7 +230,7 @@
 
 @media (max-width: 768px) {
   .hero-section {
-    padding: 30px 10px; /* Further reduced padding */
+    padding: 30px 5px; /* More reduced horizontal padding */
   }
   .hero-section h1 {
     font-size: 2.4rem;
@@ -242,17 +242,17 @@
   .features-section,
   .cta-section,
   .security-info-section {
-    padding-top: 30px;    /* Further reduced top padding */
-    padding-bottom: 30px; /* Further reduced bottom padding */
-    padding-left: 10px;   /* Further reduced horizontal padding */
-    padding-right: 10px;  /* Further reduced horizontal padding */
+    padding-top: 30px;    /* Maintained vertical padding */
+    padding-bottom: 30px; /* Maintained vertical padding */
+    padding-left: 5px;    /* More reduced horizontal padding */
+    padding-right: 5px;   /* More reduced horizontal padding */
   }
 
   .features-grid {
     grid-template-columns: 1fr; /* Stack features on smaller screens */
   }
   .feature-item {
-    padding: 15px 10px; /* Further reduced padding */
+    padding: 15px 5px; /* More reduced horizontal padding */
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06); /* Softer shadow for mobile */
     margin-bottom: 20px; /* Existing margin */
   }
@@ -272,18 +272,20 @@
     font-size: 2rem; /* Existing style */
   }
   .hero-section {
-    padding: 20px 5px; /* Aggressively reduced padding for very small screens */
+    padding: 20px 0; /* Edge-to-edge horizontal, vertical padding maintained */
   }
   .hero-section .subtitle {
     font-size: 1.1rem;
+    padding-left: 10px; /* Add slight padding to text elements if parent is 0 */
+    padding-right: 10px;/* Add slight padding to text elements if parent is 0 */
   }
   .features-section,
   .cta-section,
   .security-info-section {
-    padding-top: 20px;    /* Aggressively reduced top padding */
-    padding-bottom: 20px; /* Aggressively reduced bottom padding */
-    padding-left: 5px;    /* Aggressively reduced horizontal padding */
-    padding-right: 5px;   /* Aggressively reduced horizontal padding */
+    padding-top: 20px;    /* Vertical padding maintained */
+    padding-bottom: 20px; /* Vertical padding maintained */
+    padding-left: 0;      /* Edge-to-edge horizontal */
+    padding-right: 0;     /* Edge-to-edge horizontal */
   }
   .homepage-content .btn-large { 
     padding: 10px 18px;
@@ -299,11 +301,28 @@
   }
 
   .feature-item {
-    padding: 10px 5px; /* Aggressively reduced padding */
+    padding: 15px 10px; /* Internal padding for content within transparent item */
     box-shadow: none; /* Remove shadow for cleanest look on small screens */
+    background-color: transparent; /* Remove distinct background */
+    margin-left: 5px; /* Add small margin if parent is truly edge-to-edge */
+    margin-right: 5px;
+  }
+  .features-section .features-grid { /* Ensure grid itself has some space if items are transparent */
+    padding-left: 5px;
+    padding-right: 5px;
   }
 
   .features-section h2, .cta-section h2, .security-info-section h2 {
     font-size: 1.8rem;
+  }
+}
+
+/* Ensure direct text children of edge-to-edge sections have some breathing room */
+@media (max-width: 480px) {
+  .features-section > h2, .features-section > p,
+  .cta-section > h2, .cta-section > p,
+  .security-info-section > h2, .security-info-section > p {
+    padding-left: 10px;
+    padding-right: 10px;
   }
 }
