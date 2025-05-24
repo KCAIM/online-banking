@@ -16,32 +16,33 @@
 /* Primary button style (Green button, white text) */
 .homepage-content .btn-primary {
   background-color: var(--accent-green);
-  color: var(--primary-text);
-  border: 1px solid var(--accent-green); /* Or none if matching global .btn */
+  color: #FFFFFF; /* Explicit white text for contrast on green button */
+  border: 1px solid var(--accent-green);
   /* Inherits padding, font-size etc. from .btn if used together, or define here */
 }
 
 .homepage-content .btn-primary:hover {
   background-color: var(--accent-green-hover);
   border-color: var(--accent-green-hover);
+  color: #FFFFFF; /* Ensure text remains white on hover */
 }
 
 /* Outline button style for Hero Section (on dark green background) */
 .hero-section .btn-outline {
   background-color: transparent;
-  color: var(--primary-text); /* White text on green hero */
-  border: 2px solid var(--primary-text); /* White border on green hero */
+  color: var(--primary-text); /* Dark text on green hero section */
+  border: 2px solid var(--primary-text); /* Dark border */
 }
 
 .hero-section .btn-outline:hover {
-  background-color: var(--primary-text); /* White background on hover */
+  background-color: var(--primary-text); /* Dark background on hover */
   color: var(--accent-green); /* Green text on hover */
 }
 
 /* --- Hero Section --- */
 .hero-section {
-  background: var(--accent-green); /* Changed to solid accent green */
-  color: var(--primary-text); /* Text color for contrast */
+  background: var(--accent-green); 
+  color: var(--primary-text); /* Dark text for contrast on green background */
   text-align: center;
   padding: 100px 20px;
   min-height: 450px;
@@ -55,14 +56,14 @@
   font-size: 3.2rem;
   margin-bottom: 20px;
   font-weight: 700;
-  text-shadow: 1px 1px 3px rgba(0,0,0,0.2); /* Keep or adjust shadow as needed */
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.1); /* Slightly softer shadow for light theme */
 }
 
 .hero-section .subtitle {
   font-size: 1.6rem;
   margin-bottom: 35px;
   font-weight: 300;
-  max-width: 850px; /* Increased max-width */
+  max-width: 850px; 
 }
 
 .hero-cta .btn { /* General .btn in hero cta */
@@ -70,11 +71,9 @@
 }
 
 /* --- Features Section --- */
-/* This section will have the primary page background, 
-   and the inner .container will have var(--secondary-bg) from index.css, creating a card effect. */
 .features-section {
   padding: 80px 0;
-  background-color: var(--primary-bg); /* Main dark background */
+  background-color: var(--primary-bg); /* White background */
   text-align: center;
 }
 
@@ -88,31 +87,25 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 30px;
-  /* Grid items are inside the .container which has its own background */
 }
 
 .feature-item {
-  /* Styles for individual feature items, assuming they are direct children of features-grid */
-  /* If .feature-item itself needs a background different from the .container it's in, set it here.
-     Otherwise, it will inherit the .container's background (var(--secondary-bg)).
-     For this example, let's assume feature items are distinct cards within the .container.
-  */
-  background-color: var(--tertiary-bg); /* Slightly lighter than container's secondary-bg */
+  background-color: var(--secondary-bg); /* Using secondary-bg for feature items for subtle contrast */
   padding: 30px 25px;
-  border-radius: var(--border-radius-md); /* Use theme's border radius */
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* Softer shadow for dark theme */
+  border-radius: var(--border-radius-md); 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.075); /* Lighter shadow for light theme */
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .feature-item:hover {
   transform: translateY(-8px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1); /* Slightly more pronounced shadow on hover */
 }
 
 .feature-icon {
   font-size: 2.8rem;
   margin-bottom: 20px;
-  color: var(--accent-green); /* Changed to accent green */
+  color: var(--accent-green); 
 }
 
 .feature-item h3 {
@@ -129,8 +122,8 @@
 
 /* --- Call to Action Section --- */
 .cta-section {
-  background-color: var(--accent-green); /* Changed to accent green */
-  color: var(--primary-text); /* Text color for contrast */
+  background-color: var(--accent-green); 
+  color: var(--primary-text); /* Dark text for contrast on green background */
   padding: 70px 0;
   text-align: center;
 }
@@ -143,7 +136,7 @@
 .cta-section p {
   font-size: 1.25rem;
   margin-bottom: 30px;
-  max-width: 850px; /* Increased max-width */
+  max-width: 850px; 
   margin-left: auto;
   margin-right: auto;
   opacity: 0.9;
@@ -151,23 +144,21 @@
 
 /* Special button style for CTA section (on green background) */
 .cta-section .btn-primary {
-  background-color: var(--primary-text); /* White background */
-  color: var(--accent-green); /* Green text */
-  border: 1px solid var(--primary-text); /* White border */
+  background-color: #FFFFFF; /* Explicit white background */
+  color: var(--primary-text); /* Dark text */
+  border: 1px solid #DDDDDD; /* Light grey border */
   font-weight: bold;
 }
 .cta-section .btn-primary:hover {
-  background-color: var(--secondary-text); /* Light grey background on hover */
-  color: var(--accent-green-hover); /* Brighter green text on hover */
-  border-color: var(--secondary-text);
+  background-color: #F0F0F0; /* Slightly off-white background on hover */
+  color: var(--primary-text); /* Dark text */
+  border-color: #CCCCCC;
 }
 
 /* --- Security Info Section --- */
-/* This section will also have the primary page background, 
-   and the inner .container will have var(--secondary-bg) from index.css. */
 .security-info-section {
   padding: 70px 0;
-  background-color: var(--primary-bg); /* Main dark background */
+  background-color: var(--primary-bg); /* White background */
   text-align: center;
 }
 
@@ -180,7 +171,7 @@
 .security-info-section p {
   font-size: 1.15rem;
   color: var(--secondary-text);
-  max-width: 950px; /* Increased max-width */
+  max-width: 950px; 
   margin: 0 auto 25px auto;
 }
 
@@ -197,7 +188,7 @@
 
 /* --- Footer --- */
 .homepage-footer {
-  background-color: var(--secondary-bg); /* Theme's secondary background */
+  background-color: var(--secondary-bg); 
   color: var(--primary-text);
   padding: 50px 0;
   text-align: center;
@@ -215,7 +206,7 @@
 }
 
 .footer-links a:hover {
-  color: var(--accent-green-hover); /* Theme's accent green for hover */
+  color: var(--accent-green-hover); 
   text-decoration: underline;
 }
 
@@ -231,16 +222,9 @@
   }
   .hero-section .subtitle {
     font-size: 1.4rem;
-    /* max-width will still be 850px unless overridden here for smaller screens */
   }
   .features-section h2, .cta-section h2, .security-info-section h2 {
     font-size: 2rem;
-  }
-  .cta-section p {
-    /* max-width will still be 850px unless overridden here */
-  }
-  .security-info-section p {
-    /* max-width will still be 950px unless overridden here */
   }
 }
 
@@ -280,8 +264,7 @@
   .hero-section .subtitle {
     font-size: 1.1rem;
   }
-  /* .btn-large is used in JSX, ensure it's defined or styles are sufficient */
-  .homepage-content .btn-large { /* Targeting .btn-large within homepage content */
+  .homepage-content .btn-large { 
     padding: 10px 18px;
     font-size: 1rem;
   }
@@ -289,7 +272,7 @@
     display: flex;
     flex-direction: column;
   }
-  .hero-cta .btn { /* Ensure buttons in hero stack nicely */
+  .hero-cta .btn { 
     width: 80%;
     margin: 5px auto;
   }

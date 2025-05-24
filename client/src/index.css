@@ -1,17 +1,21 @@
 :root {
-  /* Spotify-inspired Color Palette */
-  --primary-bg: #121212; /* Very dark grey, almost black */
-  --secondary-bg: #181818; /* Dark grey */
-  --tertiary-bg: #282828; /* Lighter dark grey for elements */
-  --primary-text: #FFFFFF; /* White */
-  --secondary-text: #b3b3b3; /* Light grey for less important text */
-  --accent-green: #1DB954; /* Spotify green */
+  /* Light Theme Color Palette */
+  --primary-bg: #FFFFFF; /* White */
+  --secondary-bg: #F8F9FA; /* Very light grey (Bootstrap-like off-white) for containers/cards */
+  --tertiary-bg: #E9ECEF; /* Light grey (Bootstrap-like) for input backgrounds, secondary buttons */
+  --primary-text: #212529; /* Dark grey, almost black (Bootstrap's default text) */
+  --secondary-text: #6C757D; /* Medium grey (Bootstrap's secondary text) */
+  
+  --accent-green: #1DB954; /* Spotify green - remains vibrant */
   --accent-green-hover: #1ed760;
-  --error-red: #f44336;
+  --accent-green-focus-ring: rgba(29, 185, 84, 0.25); /* For focus rings */
+  --error-red: #DC3545; /* Bootstrap's danger color for better consistency */
+  --error-red-bg: rgba(220, 53, 69, 0.1); /* Background for error messages */
 
   --border-radius-sm: 8px;
   --border-radius-md: 12px;
   --border-radius-lg: 16px;
+  --input-border-color: #CED4DA; /* Standard input border color */
 
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   line-height: 1.6;
@@ -43,12 +47,12 @@ h1, h2, h3, h4, h5, h6 {
 /* General Container */
 .container {
   width: 90%;
-  max-width: 1440px; /* UPDATED: Increased from 1200px */
+  max-width: 1600px; /* Retaining the wider max-width from previous adjustments */
   margin: 2rem auto;
   padding: 2rem;
   background-color: var(--secondary-bg);
   border-radius: var(--border-radius-lg);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.075); /* Lighter shadow for light theme */
 }
 
 /* Forms */
@@ -70,8 +74,8 @@ input[type="number"],
 select {
   padding: 0.8em 1em;
   border-radius: var(--border-radius-sm);
-  border: 1px solid var(--tertiary-bg);
-  background-color: var(--tertiary-bg);
+  border: 1px solid var(--input-border-color);
+  background-color: var(--primary-bg); /* White background for inputs */
   color: var(--primary-text);
   font-size: 1em;
   transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
@@ -84,7 +88,7 @@ input[type="number"]:focus,
 select:focus {
   outline: none;
   border-color: var(--accent-green);
-  box-shadow: 0 0 0 2px var(--accent-green-hover);
+  box-shadow: 0 0 0 0.25rem var(--accent-green-focus-ring);
 }
 
 /* Buttons */
@@ -92,18 +96,19 @@ select:focus {
   padding: 0.8em 1.5em;
   font-size: 1em;
   font-weight: bold;
-  color: var(--primary-text);
+  color: #FFFFFF; /* White text for primary green button for contrast */
   background-color: var(--accent-green);
-  border: none;
+  border: 1px solid var(--accent-green); /* Added border for consistency */
   border-radius: var(--border-radius-md); /* Curved edges */
   cursor: pointer;
-  transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+  transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, transform 0.1s ease-in-out;
   text-align: center;
   text-decoration: none;
 }
 
 .btn:hover {
   background-color: var(--accent-green-hover); /* Hover effect */
+  border-color: var(--accent-green-hover);
   transform: translateY(-1px);
 }
 
@@ -113,15 +118,18 @@ select:focus {
 
 .btn-secondary {
   background-color: var(--tertiary-bg);
+  color: var(--primary-text); /* Dark text for secondary button */
+  border: 1px solid #ADB5BD; /* Border for definition */
 }
 
 .btn-secondary:hover {
-  background-color: #383838;
+  background-color: #DDE1E4; /* Slightly darker grey on hover */
+  border-color: #A0A7AC;
 }
 
 .error-message {
   color: var(--error-red);
-  background-color: rgba(244, 67, 54, 0.1);
+  background-color: var(--error-red-bg);
   padding: 0.75rem;
   border-radius: var(--border-radius-sm);
   border: 1px solid var(--error-red);
@@ -131,7 +139,7 @@ select:focus {
 
 .success-message {
   color: var(--accent-green);
-  background-color: rgba(29, 185, 84, 0.1);
+  background-color: rgba(29, 185, 84, 0.1); /* Light green background */
   padding: 0.75rem;
   border-radius: var(--border-radius-sm);
   border: 1px solid var(--accent-green);
