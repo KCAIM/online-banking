@@ -64,6 +64,9 @@ html {
 
 @media (max-width: 480px) {
   #root {
-    padding: 1rem; /* Further reduce padding on small screens */
+    padding-left: 0; /* Remove horizontal padding for edge-to-edge content */
+    padding-right: 0; /* Remove horizontal padding for edge-to-edge content */
+    padding-top: 1rem; /* Maintain vertical padding */
+    padding-bottom: 1rem; /* Maintain vertical padding */
   }
 }
