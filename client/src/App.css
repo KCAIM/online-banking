@@ -14,9 +14,8 @@ html {
 #root {
   max-width: 1600px; /* UPDATED: Increased from 1280px */
   margin: 0 auto;
-  padding: 2rem; /* Default padding for larger screens */
-  text-align: center;
   min-height: 100vh; /* Ensure root takes at least full viewport height */
+  /* text-align: center; Removed, let components/pages decide alignment */
 }
 
 .logo {
@@ -55,18 +54,51 @@ html {
   color: #888;
 }
 
-/* Responsive adjustments for #root padding */
+/* --- Global Container for Page Content --- */
+.container {
+  width: 100%;
+  max-width: 1200px; /* Max width for main content area */
+  margin-left: auto;
+  margin-right: auto;
+  padding: 1rem 2rem; /* Default vertical and horizontal padding */
+  box-sizing: border-box;
+}
+
+/* --- Responsive Adjustments --- */
+
 @media (max-width: 768px) {
   #root {
-    padding: 1.5rem; /* Reduce padding on medium screens */
+    /* No specific #root padding changes here, .container handles content padding */
   }
+  .container {
+    padding: 1rem 1.5rem; /* Reduce horizontal padding on medium screens */
+  }
+
+  /* Basic responsive typography for medium screens */
+  body {
+    font-size: 95%; /* Slightly reduce base font size */
+  }
+  h1 { font-size: 2.2rem; }
+  h2 { font-size: 1.8rem; }
+  h3 { font-size: 1.4rem; }
 }
 
 @media (max-width: 480px) {
   #root {
-    padding-left: 0; /* Remove horizontal padding for edge-to-edge content */
-    padding-right: 0; /* Remove horizontal padding for edge-to-edge content */
-    padding-top: 1rem; /* Maintain vertical padding */
-    padding-bottom: 1rem; /* Maintain vertical padding */
+    padding: 1rem 0; /* Vertical padding, no horizontal padding for potential full-bleed children */
+  }
+  .container {
+    padding: 1rem 1rem; /* Further reduce horizontal padding on small screens */
+  }
+
+  /* Basic responsive typography for small screens */
+  body {
+    font-size: 90%; /* Further reduce base font size */
+  }
+  h1 { font-size: 1.8rem; line-height: 1.3; }
+  h2 { font-size: 1.5rem; line-height: 1.3; }
+  h3 { font-size: 1.2rem; line-height: 1.3; }
+  p, li, span, a { /* Ensure general text elements have good line height */
+    line-height: 1.5;
   }
 }

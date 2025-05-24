@@ -269,8 +269,9 @@
 
 @media (max-width: 480px) {
   .homepage-content { /* Ensure the main content wrapper is edge-to-edge */
-    padding-left: 0 !important;
-    padding-right: 0 !important;
+    /* Use negative margins to counteract .container padding from App.css for full-bleed effect */
+    margin-left: -1rem;  /* This value should match the .container's horizontal padding in App.css at this breakpoint */
+    margin-right: -1rem; /* This value should match the .container's horizontal padding in App.css at this breakpoint */
   }
 
   .features-section,
