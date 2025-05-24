@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { FaCheckCircle } from 'react-icons/fa'; // Using react-icons for a success icon
 
 const SignUpSuccessPage = () => {
   const navigate = useNavigate();
@@ -15,8 +14,8 @@ const SignUpSuccessPage = () => {
 
   return (
     <div className="container" style={{ textAlign: 'center', marginTop: '5rem', padding: '3rem 2rem' }}>
-      <FaCheckCircle size={70} color="var(--accent-green)" style={{ marginBottom: '1.5rem' }} />
-      <h2 style={{ marginBottom: '1rem', color: 'var(--primary-text)' }}>Account Created Successfully!</h2>
+      {/* Icon and its import have been removed */}
+      <h2 style={{ marginBottom: '1.5rem', color: 'var(--primary-text)', fontSize: '2rem' }}>Account Created Successfully!</h2>
       <p style={{ color: 'var(--secondary-text)', fontSize: '1.1rem', marginBottom: '1.5rem' }}>
         Welcome aboard! Your account has been successfully created.
       </p>
