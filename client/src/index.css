@@ -43,7 +43,7 @@ h1, h2, h3, h4, h5, h6 {
 /* General Container */
 .container {
   width: 90%;
-  max-width: 1600px; /* Further increased for more expansion */
+  max-width: 1440px; /* UPDATED: Increased from 1200px */
   margin: 2rem auto;
   padding: 2rem;
   background-color: var(--secondary-bg);
