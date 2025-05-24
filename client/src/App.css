@@ -1,8 +1,22 @@
+/* c:\Users\USER\online-banking\client\src\App.css */
+html {
+  box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+  margin: 0; /* Basic reset for margins */
+  padding: 0; /* Basic reset for paddings - be mindful if you rely on default browser paddings */
+}
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 2rem; /* Default padding for larger screens */
   text-align: center;
+  min-height: 100vh; /* Ensure root takes at least full viewport height */
 }
 
 .logo {
@@ -39,4 +53,17 @@
 
 .read-the-docs {
   color: #888;
+}
+
+/* Responsive adjustments for #root padding */
+@media (max-width: 768px) {
+  #root {
+    padding: 1.5rem; /* Reduce padding on medium screens */
+  }
+}
+
+@media (max-width: 480px) {
+  #root {
+    padding: 1rem; /* Further reduce padding on small screens */
+  }
 }
