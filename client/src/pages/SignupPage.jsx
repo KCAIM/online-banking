@@ -41,8 +41,14 @@ function SignupPage() {
         return;
     }
 
-    setIsLoading(true);
-    try {
+    setIsLoading(true); // Set loading state, user will be navigated away quickly
+
+    // Navigate immediately after validation passes
+    // The API call will be made in the background.
+    navigate('/signup-success');
+
+    // Perform the API call in the background without awaiting it here
+    const performSignupInBackground = async () => {
       const apiPayload = {
         username: formData.username,
         firstName: formData.firstName,
@@ -50,21 +56,32 @@ function SignupPage() {
         email: formData.email,
         password: formData.password,
       };
-      
-      // Assuming signupUser sends the request and resolves if server acknowledges
-      // or throws an error if the request itself fails (e.g., network issue, server error response)
-      await signupUser(apiPayload);
-      
-      // On successful API call initiation, navigate to the success page
-      // The actual account creation might still be processing in the background
-      navigate('/signup-success');
 
-    } catch (err) {
-      console.error("SignupPage: Signup failed:", err);
-      setError(err.message || 'Failed to sign up. Please check your details and try again.');
-    } finally {
-      setIsLoading(false);
-    }
+      try {
+        // signupUser will handle the actual API interaction
+        await signupUser(apiPayload);
+        console.log("SignupPage: Background signup process initiated successfully.");
+        // No UI update here as user is on another page.
+        // Success is handled by SignUpSuccessPage's existence.
+      } catch (err) {
+        console.error("SignupPage: Background signup failed:", err);
+        // Error handling for the background process.
+        // User is already on SignUpSuccessPage, so direct UI error feedback here is not possible.
+        // This error should be logged server-side or handled in a way that admin can review if critical.
+      } finally {
+        // This setIsLoading(false) is for the background task, not directly affecting the navigated-away UI.
+        // It's good practice if this component instance somehow persisted, but less critical here.
+        // If you want to ensure isLoading is reset even if the component *doesn't* unmount immediately (unlikely here),
+        // you could consider a separate mechanism or simply accept that this page's isLoading state
+        // becomes irrelevant post-navigation. For this immediate navigation pattern,
+        // the primary purpose of setIsLoading(true) is for the brief moment before navigation.
+      }
+    };
+
+    performSignupInBackground();
+    // The isLoading state on this page is mostly for the brief moment before navigation.
+    // If the component unmounts, the setIsLoading(false) in the background task's finally block
+    // won't affect this unmounted component's state.
   };
 
   // Consistent styling with other pages
