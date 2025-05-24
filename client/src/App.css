@@ -12,7 +12,7 @@ html {
 }
 
 #root {
-  max-width: 1280px;
+  max-width: 1600px; /* UPDATED: Increased from 1280px */
   margin: 0 auto;
   padding: 2rem; /* Default padding for larger screens */
   text-align: center;
