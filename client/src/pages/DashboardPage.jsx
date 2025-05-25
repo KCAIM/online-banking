@@ -54,8 +54,9 @@ function DashboardPage() {
         <ul>
           {accounts.map(account => (
             <li key={account.id}>
-              {/* Account Type is now bold */}
-              <strong>{account.accountType}</strong>: {account.accountNumber} - Balance: ${account.balance.toFixed(2)}
+              <strong>
+                {account.accountType}: {account.accountNumber} - Balance: ${account.balance.toFixed(2)}
+              </strong>
             </li>
           ))}
         </ul>
