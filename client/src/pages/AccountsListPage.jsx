@@ -46,7 +46,8 @@ function AccountsListPage() {
                 {/* Use camelCase properties */}
                 {account.accountType} - {account.accountNumber}
               </Link>
-              <p>Balance: ${account.balance.toFixed(2)}</p>
+              {/* Balance amount is now bold */}
+              <p>Balance: <strong>${account.balance.toFixed(2)}</strong></p>
             </li>
           ))}
         </ul>
