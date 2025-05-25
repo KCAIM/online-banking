@@ -52,7 +52,7 @@ function AccountDetailsPage() {
         <p><strong>Account Number:</strong> {account.accountNumber}</p>
         <p><strong>Account Type:</strong> {account.accountType}</p>
         {/* Add checks for balance and createdAt in case they are null/undefined */}
-        <p><strong>Balance:</strong> ${account.balance ? account.balance.toFixed(2) : '0.00'}</p>
+        <p><strong>Balance:</strong> <strong>${account.balance ? account.balance.toFixed(2) : '0.00'}</strong></p>
         <p><strong>Opened On:</strong> {account.createdAt ? new Date(account.createdAt).toLocaleDateString() : 'N/A'}</p>
       </div>
 

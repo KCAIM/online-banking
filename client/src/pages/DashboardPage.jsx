@@ -54,8 +54,8 @@ function DashboardPage() {
         <ul>
           {accounts.map(account => (
             <li key={account.id}>
-              {/* Use camelCase properties */}
-              {account.accountType}: {account.accountNumber} - Balance: ${account.balance.toFixed(2)}
+              {/* Account Type is now bold */}
+              <strong>{account.accountType}</strong>: {account.accountNumber} - Balance: ${account.balance.toFixed(2)}
             </li>
           ))}
         </ul>
