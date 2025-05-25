@@ -104,28 +104,34 @@
   .nav-menu {
     display: flex;
     flex-direction: column;
-    width: 100%;
-    height: calc(100vh - 80px); /* Full height minus navbar */
-    position: absolute;
-    top: 80px; /* Position below navbar */
-    left: -100%; /* Hidden off-screen */
-    opacity: 1;
-    transition: all 0.5s ease;
+    /* Updated styles for slide-out behavior */
+    position: fixed; /* Position relative to the viewport */
+    top: 0;          /* Align to the top of the viewport */
+    left: 0;         /* Align to the left for transform reference */
+    width: 280px;    /* Set a specific width for the menu (adjust as needed) */
+    height: 100vh;   /* Full viewport height */
     background: var(--secondary-bg);
+    
+    transform: translateX(-100%); /* Initially hide off-screen to the left */
+    transition: transform 0.5s ease; /* Animate the transform property */
+    
+    opacity: 1; /* Ensure it's visible when it slides in */
+    z-index: 1000; /* Ensure menu is above other content (like the navbar at 999) */
+    overflow-y: auto; /* Allow scrolling within the menu if content is long */
   }
 
   .nav-menu.active {
-    left: 0; /* Slide in */
-    opacity: 1;
-    transition: all 0.5s ease;
-    z-index: 1;
+    transform: translateX(0); /* Slide into view */
+    /* z-index is inherited from .nav-menu */
+    /* opacity is inherited */
+    /* transition is handled by the base .nav-menu style */
   }
 
   .nav-links {
     text-align: center;
     padding: 2rem;
     width: 100%;
-    display: table;
+    display: table; /* Consider changing to flex for better control if needed */
   }
 
   .nav-links:hover {
@@ -147,5 +153,23 @@
     right: 0;
     transform: translate(-100%, 75%);
     font-size: 1.8rem;
+  }
+
+  /* Optional: Overlay for Mobile Menu */
+  .menu-overlay {
+    display: none; /* Hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Dimming effect */
+    z-index: 998; /* Below the menu (1000), above page content, but below navbar (999) if menu slides over it */
+                  /* If menu slides under navbar, this z-index might need adjustment or overlay might not be needed */
+    cursor: pointer;
+  }
+
+  .menu-overlay.active {
+    display: block; /* Show when menu is active */
   }
 }
